@@ -34,5 +34,9 @@ object ParserCombinators {
     }
     bind(item, cont)
   }
+
+  def plus[T](a: Parser[T], b: Parser[T]): Parser[T] = (input: String) => a(input).concat(b(input))
+
+
 }
 
