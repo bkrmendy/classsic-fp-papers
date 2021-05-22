@@ -8,12 +8,12 @@ class ParserCombinatorsTests extends FunSuite {
   def digit: Parser[Char] = sat((c: Char) => ('0' to '9').contains(c))
   def upper: Parser[Char] = sat((c: Char) => ('A' to 'Z').contains(c))
   def lower: Parser[Char] = sat((c: Char) => ('a' to 'z').contains(c))
-  def letter: Parser[Char] = lower plus upper
-  def alphanum: Parser[Char] = letter plus digit
+  def letter: Parser[Char] = lower <|> upper
+  def alphanum: Parser[Char] = letter <|> digit
 
   def word: Parser[String] = {
-    val neWord = letter bind ((x: Char) => word bind ((xs: String) => result(x + xs)))
-    neWord plus result("")
+    val neWord = letter >>= ((x: Char) => word >>= ((xs: String) => result(x + xs)))
+    neWord <|> result("")
   }
 
   test("digit") {
@@ -44,7 +44,7 @@ class ParserCombinatorsTests extends FunSuite {
   }
 
   test("sequence") {
-    val parseExcelCellId = upper seq digit
+    val parseExcelCellId = upper ~> digit
     val res = parseExcelCellId("A3")
     assert(res.nonEmpty)
     assert(res.head._1 == ('A', '3'))

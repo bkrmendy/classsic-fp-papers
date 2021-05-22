@@ -12,7 +12,7 @@ object ParserCombinators {
 
   def sat(pred: Char => Boolean): Parser[Char] = {
     val cont: Char => Parser[Char] = (x: Char) => if (pred(x)) result(x) else zero
-    item bind cont
+    item >>= cont
   }
 }
 
