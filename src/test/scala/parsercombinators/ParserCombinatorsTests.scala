@@ -121,11 +121,27 @@ class ParserCombinatorsTests extends FunSuite {
     meta("123", 123)
   }
 
+  test("char") {
+    val parser = char('1')
+    val res = parser("111")
+    assert(res.nonEmpty)
+    assert(res.head._1 == '1')
+
+    val resFail = parser("aa")
+    assert(resFail.isEmpty)
+  }
+
   test("bracket") {
     val parser = bracket(char('<'), int, char('>'))
     val res = parser("<123>")
     assert(res.nonEmpty)
     assert(res.head._1 == 123)
+
+    val resFail = parser("231")
+    assert(resFail.isEmpty)
+
+    val resEmpty = parser("")
+    assert(resEmpty.isEmpty)
   }
 
   test("sepBy") {

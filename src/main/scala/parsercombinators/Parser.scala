@@ -1,6 +1,6 @@
 package parsercombinators
 
-import parsercombinators.ParserCombinators.{result, zero}
+import parsercombinators.ParserCombinators.{many, result, zero}
 
 trait Parser[T] {
   def apply(input: String): Seq[(T, String)]
@@ -26,4 +26,14 @@ trait Parser[T] {
   def >>[U](b: Parser[U]): Parser[U] = this >>= (_ => b)
 
   def <|>(b: Parser[T]): Parser[T] = (input: String) => this(input).concat(b(input))
+
+  def <==(op: Parser[(T, T) => T]): Parser[T] = {
+    def rest(x: T): Parser[T] = (for {
+      f <- op
+      y <- this
+      r <- rest(f(x, y))
+    } yield r) <|> result(x)
+
+    this >>= rest
+  }
 }
