@@ -48,6 +48,7 @@ object ParserCombinators {
 
   def many[T](p: Parser[T]): Parser[List[T]] = many1(p) <|> result(List.empty)
 
+  def nat: Parser[Int] = for (xs <- many1(digit)) yield (xs.mkString.toInt)
 }
 
 

@@ -89,4 +89,14 @@ class ParserCombinatorsTests extends FunSuite {
     val resEmpty = many(digit)("!12345")
     assert(resEmpty.head._1.isEmpty)
   }
+
+  test("nat") {
+    val res = nat("123")
+    assert(res.nonEmpty)
+    assert(res.head._1 == 123)
+    assert(res(1)._1 == 12)
+
+    val resFails = nat("abba")
+    assert(resFails.isEmpty)
+  }
 }
