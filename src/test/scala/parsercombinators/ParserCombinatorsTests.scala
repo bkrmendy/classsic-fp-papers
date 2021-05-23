@@ -5,21 +5,6 @@ import parsercombinators.ParserCombinators._
 
 class ParserCombinatorsTests extends FunSuite {
 
-  def digit: Parser[Char] = sat(('0' to '9').contains)
-  def upper: Parser[Char] = sat(('A' to 'Z').contains)
-  def lower: Parser[Char] = sat(('a' to 'z').contains)
-  def letter: Parser[Char] = lower <|> upper
-  def alphanum: Parser[Char] = letter <|> digit
-
-  def word: Parser[String] = {
-    val neWord: Parser[String] = for {
-      x <- letter
-      xs <- word
-      w = x + xs
-    } yield w
-    neWord <|> result("")
-  }
-
   test("digit") {
     val succeedsOK = digit("666")
     assert(succeedsOK.nonEmpty)
@@ -85,5 +70,23 @@ class ParserCombinatorsTests extends FunSuite {
     assert(res.length == 4)
     assert(res.head._1 == "Yes")
     assert(res.head._2 == "!")
+  }
+
+  test("many1") {
+    val res = many1(digit)("12345!")
+    assert(res.head._1.mkString == "12345")
+    assert(res.head._2 == "!")
+
+    val resEmpty = many1(digit)("!12345")
+    assert(resEmpty.isEmpty)
+  }
+
+  test("many") {
+    val res = many(digit)("12345!")
+    assert(res.head._1.mkString == "12345")
+    assert(res.head._2 == "!")
+
+    val resEmpty = many(digit)("!12345")
+    assert(resEmpty.head._1.isEmpty)
   }
 }
