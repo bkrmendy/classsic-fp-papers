@@ -10,9 +10,16 @@ object ParserCombinators {
     case input => List((input.head, input.tail))
   }
 
-  def sat(pred: Char => Boolean): Parser[Char] = {
-    val cont: Char => Parser[Char] = (x: Char) => if (pred(x)) result(x) else zero
-    item >>= cont
+  def sat(pred: Char => Boolean): Parser[Char] = for {
+    x <- item
+    if pred(x)
+  } yield x
+
+  def char(c: Char): Parser[Char] = sat((cc: Char) => c == cc)
+
+  def string(s: String): Parser[String] = s match {
+    case "" => result("")
+    case _  => char(s.head) >> string(s.tail) >> result(s)
   }
 }
 
