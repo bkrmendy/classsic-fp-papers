@@ -99,4 +99,47 @@ class ParserCombinatorsTests extends FunSuite {
     val resFails = nat("abba")
     assert(resFails.isEmpty)
   }
+
+  test("string") {
+    val parser = string("baba")
+    val res = parser("baba")
+    assert(res.nonEmpty)
+    assert(res.head._1 == "baba")
+
+    val resFail = parser("baby")
+    assert(resFail.isEmpty)
+  }
+
+  test("int") {
+    val meta = (input: String, expected: Int) => {
+      val res = int(input)
+      assert(res.head._1 == expected)
+    }
+
+    meta("+123", 123)
+    meta("-123", -123)
+    meta("123", 123)
+  }
+
+  test("bracket") {
+    val parser = bracket(char('<'), int, char('>'))
+    val res = parser("<123>")
+    assert(res.nonEmpty)
+    assert(res.head._1 == 123)
+  }
+
+  test("sepBy") {
+    val parser = sepBy(int, char(','))
+    val res = parser("1,2,3,4,5")
+    assert(res.nonEmpty)
+    assert(res.head._1 == List(1,2,3,4,5))
+  }
+
+  test("list of ints") {
+    val ints = sepBy(int, char(','))
+    val parser = bracket(char('['), ints, char(']'))
+    val res = parser("[1,2,3,4,5]")
+    assert(res.nonEmpty)
+    assert(res.head._1 == List(1,2,3,4,5))
+  }
 }

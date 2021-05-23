@@ -48,7 +48,29 @@ object ParserCombinators {
 
   def many[T](p: Parser[T]): Parser[List[T]] = many1(p) <|> result(List.empty)
 
-  def nat: Parser[Int] = for (xs <- many1(digit)) yield (xs.mkString.toInt)
+  def nat: Parser[Int] = for (xs <- many1(digit)) yield xs.mkString.toInt
+
+  def sign: Parser[Int => Int] = {
+    val id: Int => Int = a => a
+    val plus = for (_ <- char('+')) yield id
+    val minus = for (_ <- char('-')) yield (a: Int) => -a
+    plus <|> minus <|> result(id)
+  }
+
+  def int: Parser[Int] = for { s <- sign; n <- nat } yield s(n)
+
+  def sepBy1[T, U](p: Parser[T], sep: Parser[U]): Parser[List[T]] = for {
+    x <- p
+    xs <- many(for { _ <- sep; y <- p} yield  y)
+  } yield x +: xs
+
+  def sepBy[T, U](p: Parser[T], sep: Parser[U]): Parser[List[T]] = sepBy1(p, sep) <|> result(List.empty)
+
+  def bracket[T, U, W](open: Parser[T], p: Parser[U], close: Parser[W]): Parser[U] = for {
+    _ <- open
+    x <- p
+    _ <- close
+  } yield x
 }
 
 
